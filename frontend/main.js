@@ -79,13 +79,13 @@ document.addEventListener("DOMContentLoaded", () => {
       return el ? el.value.trim() : "";
     };
 
-    const name = getValue("name");
-    const email = getValue("email");
-    const pickup = getValue("pickup");
-    const destination = getValue("destination");
-    const weight = getValue("weight");
-    const service = getValue("service");
-    const details = getValue("details");
+    const name = document.querySelector('[name="name"]').value.trim();
+    const email = document.querySelector('[name="email"]').value.trim();
+    const pickup = document.querySelector('[name="pickup"]').value.trim();
+    const destination = document.querySelector('[name="destination"]').value.trim();
+    const weight = document.querySelector('[name="weight"]').value.trim();
+    const service = document.querySelector('[name="service"]').value;
+    const details = document.querySelector('[name="details"]').value.trim();
 
     if (!name || !email || !pickup || !destination || !service) {
       alert("Fill all required fields");
@@ -147,7 +147,7 @@ if (paymentForm) {
   });
   console.log("JS LOADED ✅");
 
-document.getElementById("whatsappBtn")?.addEventListener("click", () => {
-  alert("Button is working ✅");
-});
+  document.getElementById("whatsappBtn")?.addEventListener("click", () => {
+    alert("Button is working ✅");
+  });
 }

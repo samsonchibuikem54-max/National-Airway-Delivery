@@ -124,18 +124,14 @@ app.post("/quotes", async (req, res) => {
 
 // ================= GET QUOTES (ADMIN) =================
 app.get("/quotes", verifyAdmin, async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from("quotes")
-      .select("*")
-      .order("created_at", { ascending: false });
+  const { data, error } = await supabase
+    .from("quotes")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    if (error) throw error;
+  if (error) return res.json({ success: false, error: error.message });
 
-    res.json({ success: true, data });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
+  res.json({ success: true, data });
 });
 
 // ================= VERIFY QUOTE =================
