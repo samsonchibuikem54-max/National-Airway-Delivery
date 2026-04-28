@@ -68,31 +68,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("requestForm");
   const btn = document.getElementById("whatsappBtn");
 
-  if (!form || !btn) {
-    console.log("❌ Form or button not found");
-    return;
-  }
+  if (!form || !btn) return;
 
   btn.addEventListener("click", () => {
-    const getValue = (name) => {
-      const el = form.querySelector(`[name="${name}"]`);
-      return el ? el.value.trim() : "";
-    };
 
-    const name = document.querySelector('[name="name"]').value.trim();
-    const email = document.querySelector('[name="email"]').value.trim();
-    const pickup = document.querySelector('[name="pickup"]').value.trim();
-    const destination = document.querySelector('[name="destination"]').value.trim();
-    const weight = document.querySelector('[name="weight"]').value.trim();
-    const service = document.querySelector('[name="service"]').value;
-    const details = document.querySelector('[name="details"]').value.trim();
+    const name = form.querySelector('[name="name"]').value.trim();
+    const email = form.querySelector('[name="email"]').value.trim();
+    const pickup = form.querySelector('[name="pickup"]').value.trim();
+    const destination = form.querySelector('[name="destination"]').value.trim();
+    const weight = form.querySelector('[name="weight"]').value.trim();
+    const service = form.querySelector('[name="service"]').value;
+    const details = form.querySelector('[name="details"]').value.trim();
 
+    // VALIDATION
     if (!name || !email || !pickup || !destination || !service) {
-      alert("Fill all required fields");
+      alert("Please fill all required fields");
       return;
     }
 
-    const message = `Hello, I want to request a payment slip.
+    const message = `
+🚨 NEW SHIPMENT REQUEST
 
 Name: ${name}
 Email: ${email}
@@ -100,10 +95,12 @@ Pickup: ${pickup}
 Destination: ${destination}
 Weight: ${weight || "N/A"}
 Service: ${service}
-Details: ${details || "None"}`;
+Details: ${details || "None"}
+
+Please respond with payment instructions.
+    `;
 
     const phone = "13864174481";
-
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
     window.open(url, "_blank");
