@@ -10,133 +10,152 @@
         }, 1);
     };
     spinner();
-    
-    
-    // Initiate the wowjs
-    new WOW().init();
 
+    // WOW animation
+    new WOW().init();
 
     // Sticky Navbar
     $(window).scroll(function () {
-        if ($(this).scrollTop() > 300) {
-            $('.sticky-top').css('top', '0px');
-        } else {
-            $('.sticky-top').css('top', '-100px');
-        }
+        $('.sticky-top').css('top', $(this).scrollTop() > 300 ? '0px' : '-100px');
     });
-    
-    
-    // Dropdown on mouse hover
+
+    // Dropdown hover
     const $dropdown = $(".dropdown");
     const $dropdownToggle = $(".dropdown-toggle");
     const $dropdownMenu = $(".dropdown-menu");
     const showClass = "show";
-    
-    $(window).on("load resize", function() {
+
+    $(window).on("load resize", function () {
         if (this.matchMedia("(min-width: 992px)").matches) {
             $dropdown.hover(
-            function() {
-                const $this = $(this);
-                $this.addClass(showClass);
-                $this.find($dropdownToggle).attr("aria-expanded", "true");
-                $this.find($dropdownMenu).addClass(showClass);
-            },
-            function() {
-                const $this = $(this);
-                $this.removeClass(showClass);
-                $this.find($dropdownToggle).attr("aria-expanded", "false");
-                $this.find($dropdownMenu).removeClass(showClass);
-            }
+                function () {
+                    $(this).addClass(showClass)
+                        .find($dropdownToggle).attr("aria-expanded", "true")
+                        .end()
+                        .find($dropdownMenu).addClass(showClass);
+                },
+                function () {
+                    $(this).removeClass(showClass)
+                        .find($dropdownToggle).attr("aria-expanded", "false")
+                        .end()
+                        .find($dropdownMenu).removeClass(showClass);
+                }
             );
         } else {
             $dropdown.off("mouseenter mouseleave");
         }
     });
-    
-    
-    // Back to top button
-    $(window).scroll(function () {
-        if ($(this).scrollTop() > 300) {
-            $('.back-to-top').fadeIn('slow');
-        } else {
-            $('.back-to-top').fadeOut('slow');
+
+    // ================= BACKEND =================
+    const BACKEND_URL = "https://fastlaneshipping-backend-i4sw.onrender.com";
+
+    // ================= FORM + WHATSAPP =================
+    document.addEventListener("DOMContentLoaded", () => {
+
+        const form = document.getElementById("requestForm");
+        const btn = document.getElementById("whatsappBtn");
+
+        if (!form || !btn) {
+            console.log("❌ Form or button not found");
+            return;
         }
+
+        btn.addEventListener("click", async () => {
+
+            const getValue = (name) => {
+                const el = form.querySelector(`[name="${name}"]`);
+                return el ? el.value.trim() : "";
+            };
+
+            const data = {
+                name: getValue("name"),
+                email: getValue("email"),
+                pickup: getValue("pickup"),
+                destination: getValue("destination"),
+                weight: getValue("weight"),
+                service: getValue("service"),
+                details: getValue("details"),
+            };
+
+            // ✅ Validation
+            if (!data.name || !data.email || !data.pickup || !data.destination || !data.service) {
+                alert("Fill all required fields");
+                return;
+            }
+
+            try {
+                // ✅ SEND TO BACKEND
+                await fetch(`${BACKEND_URL}/request`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                });
+
+            } catch (err) {
+                console.error("Backend error:", err);
+            }
+
+            // ✅ SEND TO WHATSAPP
+           const message =
+`Hello Admin,
+
+A new shipment request has been submitted.
+
+Customer Details:
+--------------------------
+Name: ${data.name}
+Email: ${data.email}
+
+Shipment Details:
+--------------------------
+Pickup Location: ${data.pickup}
+Destination: ${data.destination}
+Weight: ${data.weight || "N/A"}
+Service Type: ${data.service}
+
+Additional Info:
+--------------------------
+${data.details || "None"}
+
+Please review and respond with payment details.`;
+
+            const phone = "09040533828"; // ✅ your test number
+
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+            console.log("WhatsApp URL:", url);
+
+            window.open(url, "_blank");
+
+        });
     });
+
+    // Back to top
+    $(window).scroll(function () {
+        $('.back-to-top').fadeToggle($(this).scrollTop() > 300);
+    });
+
     $('.back-to-top').click(function () {
-        $('html, body').animate({scrollTop: 0}, 1500, 'easeInOutExpo');
+        $('html, body').animate({ scrollTop: 0 }, 1500);
         return false;
     });
 
-
-    // Facts counter
-    $('[data-toggle="counter-up"]').counterUp({
-        delay: 10,
-        time: 2000
-    });
-
-
-    // Header carousel
+    // Carousel
     $(".header-carousel").owlCarousel({
         autoplay: false,
         smartSpeed: 1500,
         items: 1,
         dots: false,
         loop: true,
-        nav : true,
-        navText : [
+        nav: true,
+        navText: [
             '<i class="bi bi-chevron-left"></i>',
             '<i class="bi bi-chevron-right"></i>'
         ]
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("requestForm");
-  const btn = document.getElementById("whatsappBtn");
-
-  if (!form || !btn) {
-    console.log("❌ Form or button not found");
-    return;
-  }
-
-  btn.addEventListener("click", () => {
-    const getValue = (name) => {
-      const el = form.querySelector(`[name="${name}"]`);
-      return el ? el.value.trim() : "";
-    };
-
-    const name = getValue("name");
-    const email = getValue("email");
-    const pickup = getValue("pickup");
-    const destination = getValue("destination");
-    const weight = getValue("weight");
-    const service = getValue("service");
-    const details = getValue("details");
-
-    if (!name || !email || !pickup || !destination || !service) {
-      alert("Fill all required fields");
-      return;
-    }
-
-    const message = `Hello, I want to request a payment slip.
-
-Name: ${name}
-Email: ${email}
-Pickup: ${pickup}
-Destination: ${destination}
-Weight: ${weight || "N/A"}
-Service: ${service}
-Details: ${details || "None"}`;
-
-    const phone = "13864174481";
-
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-
-    window.open(url, "_blank");
-  });
-});
-
-
-    // Testimonials carousel
     $(".testimonial-carousel").owlCarousel({
         autoplay: false,
         smartSpeed: 1000,
@@ -144,17 +163,10 @@ Details: ${details || "None"}`;
         dots: true,
         loop: true,
         responsive: {
-            0:{
-                items:1
-            },
-            768:{
-                items:2
-            },
-            992:{
-                items:3
-            }
+            0: { items: 1 },
+            768: { items: 2 },
+            992: { items: 3 }
         }
     });
-    
-})(jQuery);
 
+})(jQuery);
