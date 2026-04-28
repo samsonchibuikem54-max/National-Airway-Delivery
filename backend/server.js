@@ -113,7 +113,9 @@ app.post("/request", async (req, res) => {
     }
   ]);
 
-  if (error) return res.json({ success: false, error: error.message });
+  if (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
 
   res.json({ success: true });
 });
