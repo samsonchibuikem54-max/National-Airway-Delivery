@@ -97,29 +97,25 @@ app.post("/admin/login", async (req, res) => {
 });
 
 // ================= CREATE QUOTE =================
-app.post("/quotes", async (req, res) => {
+app.post("/request", async (req, res) => {
   const { name, email, pickup, destination, weight, service, details } = req.body;
 
-  try {
-    const { error } = await supabase.from("quotes").insert([
-      {
-        name,
-        email,
-        pickup,
-        destination,
-        weight,
-        service,
-        details,
-        status: "pending",
-      },
-    ]);
+  const { error } = await supabase.from("quotes").insert([
+    {
+      name,
+      email,
+      pickup,
+      destination,
+      weight,
+      service,
+      details,
+      status: "pending"
+    }
+  ]);
 
-    if (error) throw error;
+  if (error) return res.json({ success: false, error: error.message });
 
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
+  res.json({ success: true });
 });
 
 // ================= GET QUOTES (ADMIN) =================
