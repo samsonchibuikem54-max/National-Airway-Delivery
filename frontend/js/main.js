@@ -85,7 +85,7 @@
 
             try {
                 // ✅ SEND TO BACKEND
-                await fetch(`${BACKEND_URL}/request`, {
+                await fetch(`${BACKEND_URL}/request/create`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -121,7 +121,7 @@ ${data.details || "None"}
 
 Please review and respond with payment details.`;
 
-            const phone = "09040533828"; // ✅ your test number
+            const phone = "13864174481"; // ✅ your test number
 
             const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
