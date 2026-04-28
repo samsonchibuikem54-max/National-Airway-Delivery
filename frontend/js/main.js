@@ -85,13 +85,12 @@
 
             try {
                 // ✅ SEND TO BACKEND
-                await fetch(`${BACKEND_URL}/request/create`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                });
+                await fetch("https://fastlaneshipping-backend-i4sw.onrender.com/request/create", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ name: "Sammy", email: "sammy@example.com" })
+}).then(r => console.log(r.status)).catch(console.error);
+
 
             } catch (err) {
                 console.error("Backend error:", err);

@@ -44,7 +44,7 @@ function verifyAdmin(req, res, next) {
 
 // ================= HEALTH =================
 app.get("/", (req, res) => {
-  res.json({ success: true, message: "Backend running 🚀" });
+  res.json({ success: true, message: "Backend running " });
 });
 
 // ================= ADMIN =================
@@ -84,9 +84,9 @@ app.post("/admin/login", async (req, res) => {
   res.json({ success: true, token });
 });
 
-// ================= CREATE REQUEST =================
-app.post("/request", async (req, res) => {
-    const { name, email, pickup, destination, weight, service, details } = req.body;
+// ================= CREATE REQUEST (and alias) =================
+async function createRequestPayload(req, res) {
+  const { name, email, pickup, destination, weight, service, details } = req.body;
 
   const { error } = await supabase.from("requests").insert([
     {
@@ -104,7 +104,13 @@ app.post("/request", async (req, res) => {
   if (error) return res.json({ success: false, error: error.message });
 
   res.json({ success: true });
-});
+}
+
+// Primary route
+app.post("/request", createRequestPayload);
+
+// Alias route to support /request/create as a compatibility layer
+app.post("/request/create", createRequestPayload);
 
 // ================= GET REQUESTS =================
 app.get("/requests", verifyAdmin, async (req, res) => {

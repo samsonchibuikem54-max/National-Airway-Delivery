@@ -1,4 +1,4 @@
-const BACKEND_URL = "https://fastlaneshipping-backend-i4sw.onrender.com"; // change after deploy
+const BACKEND_URL = "https://fastlaneshipping-backend-i4sw.onrender.com/"; // change after deploy
 
 // ---------------- ADMIN LOGIN ----------------
 const adminLoginForm = document.querySelector("#adminLoginForm");
