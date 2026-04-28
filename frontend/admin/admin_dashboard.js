@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!confirm("Delete this quote?")) return;
 
       try {
-        const res = await fetch(`${BACKEND_URL}/quote/delete`, {
+        const res = (`${BACKEND_URL}/quote/delete`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
