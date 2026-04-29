@@ -97,7 +97,7 @@ app.post("/admin/login", async (req, res) => {
 });
 
 // ================= CREATE QUOTE =================
-app.post("/request", async (req, res) => {
+app.post("/request/create", async (req, res) => {
   const { name, email, pickup, destination, weight, service, details } = req.body;
 
   const { error } = await supabase.from("quotes").insert([
