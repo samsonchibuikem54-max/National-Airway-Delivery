@@ -26,7 +26,7 @@ if (process.env.SENDGRID_API_KEY) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 }
 
-// ================= AUTH MIDDLEWARE =================
+// ================= AUTH =================
 function verifyAdmin(req, res, next) {
   const auth = req.headers.authorization;
 
@@ -49,9 +49,9 @@ app.get("/", (req, res) => {
 
 // ================= ADMIN =================
 app.post("/admin/register", async (req, res) => {
-  const { email, password } = req.body;
-
   try {
+    const { email, password } = req.body;
+
     const hashed = await bcrypt.hash(password, 10);
 
     const { error } = await supabase
@@ -67,9 +67,9 @@ app.post("/admin/register", async (req, res) => {
 });
 
 app.post("/admin/login", async (req, res) => {
-  const { email, password } = req.body;
-
   try {
+    const { email, password } = req.body;
+
     const { data: admin, error } = await supabase
       .from("admins")
       .select("*")
@@ -97,46 +97,57 @@ app.post("/admin/login", async (req, res) => {
 });
 
 // ================= CREATE QUOTE =================
-app.post("/request/create", async (req, res) => {
-  const { name, email, pickup, destination, weight, service, details } = req.body;
-
-  const { error } = await supabase.from("quotes").insert([
-    {
-      name,
-      email,
-      pickup,
-      destination,
-      weight,
-      service,
-      details,
-      status: "pending"
-    }
-  ]);
-
-  if (error) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-
-  res.json({ success: true });
-});
-
-// ================= GET QUOTES (ADMIN) =================
-app.get("/quotes", verifyAdmin, async (req, res) => {
-  const { data, error } = await supabase
-    .from("quotes")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) return res.json({ success: false, error: error.message });
-
-  res.json({ success: true, data });
-});
-
-// ================= VERIFY QUOTE =================
-app.post("/quote/verify", verifyAdmin, async (req, res) => {
-  const { id } = req.body;
-
+// ✅ SUPPORT BOTH ROUTES (IMPORTANT FOR FRONTEND)
+async function createQuote(req, res) {
   try {
+    const { name, email, pickup, destination, weight, service, details } = req.body;
+
+    const { error } = await supabase.from("quotes").insert([
+      {
+        name,
+        email,
+        pickup,
+        destination,
+        weight,
+        service,
+        details,
+        status: "pending",
+      },
+    ]);
+
+    if (error) throw error;
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+// 🔥 BOTH ENDPOINTS WORK NOW
+app.post("/request", createQuote);
+app.post("/request/create", createQuote);
+
+// ================= GET QUOTES =================
+app.get("/quotes", verifyAdmin, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("quotes")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ================= VERIFY =================
+app.post("/quote/verify", verifyAdmin, async (req, res) => {
+  try {
+    const { id } = req.body;
+
     // Generate tracking ID
     const tracking_id =
       "TRK-" + crypto.randomBytes(4).toString("hex").toUpperCase();
@@ -151,10 +162,12 @@ app.post("/quote/verify", verifyAdmin, async (req, res) => {
       return res.status(404).json({ success: false, error: "Quote not found" });
     }
 
-    await supabase
+    const { error: updateError } = await supabase
       .from("quotes")
       .update({ status: "approved", tracking_id })
       .eq("id", id);
+
+    if (updateError) throw updateError;
 
     // OPTIONAL EMAIL
     if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_FROM) {
@@ -179,12 +192,15 @@ app.post("/quote/verify", verifyAdmin, async (req, res) => {
   }
 });
 
-// ================= DELETE QUOTE =================
+// ================= DELETE =================
 app.post("/quote/delete", verifyAdmin, async (req, res) => {
-  const { id } = req.body;
-
   try {
-    const { error } = await supabase.from("quotes").delete().eq("id", id);
+    const { id } = req.body;
+
+    const { error } = await supabase
+      .from("quotes")
+      .delete()
+      .eq("id", id);
 
     if (error) throw error;
 
@@ -194,11 +210,11 @@ app.post("/quote/delete", verifyAdmin, async (req, res) => {
   }
 });
 
-// ================= TRACKING =================
+// ================= TRACK =================
 app.get("/tracking", async (req, res) => {
-  const { email } = req.query;
-
   try {
+    const { email } = req.query;
+
     const { data, error } = await supabase
       .from("quotes")
       .select("*")
@@ -212,7 +228,7 @@ app.get("/tracking", async (req, res) => {
   }
 });
 
-// ================= START SERVER =================
+// ================= START =================
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} 🚀`);
 });
