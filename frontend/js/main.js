@@ -25,7 +25,10 @@
     const form = document.getElementById("requestForm");
     const btn = document.getElementById("whatsappBtn");
 
-    if (!form || !btn) return;
+    if (!form || !btn) {
+      console.log("❌ Form or button not found");
+      return;
+    }
 
     btn.addEventListener("click", async () => {
 
@@ -51,39 +54,64 @@
       }
 
       try {
-        // ✅ SEND TO BACKEND
-        await fetch(`${BACKEND_URL}/request/create`, {
+        // ✅ SEND TO BACKEND (ONLY ONCE)
+        const res = await fetch(`${BACKEND_URL}/request/create`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify(data)
         });
 
-      } catch (err) {
-        console.error("Backend error:", err);
-      }
+        const result = await res.json();
 
-      // ================= WHATSAPP MESSAGE =================
-      const message = `
-🚨 NEW SHIPMENT REQUEST
+        if (!result.success) {
+          throw new Error(result.error || "Request failed");
+        }
 
+        // ✅ SUCCESS MESSAGE
+        alert("Request submitted successfully!");
+
+        // ================= WHATSAPP MESSAGE =================
+        const message = `
+Hello Admin,
+
+A new shipment request has been submitted.
+
+Customer Details:
+--------------------------
 Name: ${data.name}
 Email: ${data.email}
-Pickup: ${data.pickup}
+
+Shipment Details:
+--------------------------
+Pickup Location: ${data.pickup}
 Destination: ${data.destination}
 Weight: ${data.weight || "N/A"}
-Service: ${data.service}
-Details: ${data.details || "None"}
+Service Type: ${data.service}
 
-Please respond with payment details.
-      `;
+Additional Info:
+--------------------------
+${data.details || "None"}
 
-      const phone = "13864174481";
+Please review and respond.
+        `;
 
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+        const phone = "09040533828"; // change later to admin number
 
-      console.log("WhatsApp URL:", url);
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
-      window.open(url, "_blank");
+        console.log("WhatsApp URL:", url);
+
+        window.open(url, "_blank");
+
+        // ✅ RESET FORM
+        form.reset();
+
+      } catch (err) {
+        console.error("❌ Error:", err.message);
+        alert("Failed to send request. Try again.");
+      }
 
     });
   });
