@@ -52,7 +52,7 @@
 
       try {
         // ✅ SEND TO BACKEND
-        await fetch("https://fastlaneshipping-backend-i4sw.onrender.com/request", {
+        await fetch(`${BACKEND_URL}/request/create`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data)
