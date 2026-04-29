@@ -16,7 +16,7 @@
     $('.sticky-top').css('top', $(this).scrollTop() > 300 ? '0px' : '-100px');
   });
 
-  // ================= BACKEND =================
+  // ================= BACKEND URL =================
   const BACKEND_URL = "https://fastlaneshipping-backend-i4sw.onrender.com";
 
   // ================= REQUEST FORM =================
@@ -54,7 +54,7 @@
       }
 
       try {
-        // ✅ SEND TO BACKEND (ONLY ONCE)
+        // ✅ SEND TO BACKEND — route confirmed from server.js
         const res = await fetch(`${BACKEND_URL}/request/create`, {
           method: "POST",
           headers: {
@@ -62,6 +62,12 @@
           },
           body: JSON.stringify(data)
         });
+
+        // ✅ Safety check — prevents crash if server returns HTML error page
+        const contentType = res.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error(`Server error (status ${res.status}). Please try again.`);
+        }
 
         const result = await res.json();
 
@@ -97,13 +103,11 @@ ${data.details || "None"}
 Please review and respond.
         `;
 
-        const phone = "09040533828"; // change later to admin number
+        const phone = "09040533828";
+        const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
-        const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-
-        console.log("WhatsApp URL:", url);
-
-        window.open(url, "_blank");
+        console.log("WhatsApp URL:", waUrl);
+        window.open(waUrl, "_blank");
 
         // ✅ RESET FORM
         form.reset();

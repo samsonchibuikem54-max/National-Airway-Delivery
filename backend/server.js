@@ -227,6 +227,11 @@ app.get("/tracking", async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+// at bottom, before app.listen
+app.get("/health/quotes", (req, res) => {
+  res.json({ ok: true, data: [] });
+});
+
 
 // ================= START =================
 app.listen(PORT, () => {
