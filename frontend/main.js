@@ -1,4 +1,4 @@
-const BACKEND_URL = "https://fastlaneshipping-backend-i4sw.onrender.com/"; // change after deploy
+const BACKEND_URL = "https://fastlaneshipping-backend-i4sw.onrender.com"; // change after deploy
 
 // ---------------- ADMIN LOGIN ----------------
 const adminLoginForm = document.querySelector("#adminLoginForm");
@@ -68,26 +68,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("requestForm");
   const btn = document.getElementById("whatsappBtn");
 
-  if (!form || !btn) return;
+  if (!form || !btn) {
+    console.log("❌ Form or button not found");
+    return;
+  }
 
   btn.addEventListener("click", () => {
+    const getValue = (name) => {
+      const el = form.querySelector(`[name="${name}"]`);
+      return el ? el.value.trim() : "";
+    };
 
-    const name = form.querySelector('[name="name"]').value.trim();
-    const email = form.querySelector('[name="email"]').value.trim();
-    const pickup = form.querySelector('[name="pickup"]').value.trim();
-    const destination = form.querySelector('[name="destination"]').value.trim();
-    const weight = form.querySelector('[name="weight"]').value.trim();
-    const service = form.querySelector('[name="service"]').value;
-    const details = form.querySelector('[name="details"]').value.trim();
+    const name = getValue("name");
+    const email = getValue("email");
+    const pickup = getValue("pickup");
+    const destination = getValue("destination");
+    const weight = getValue("weight");
+    const service = getValue("service");
+    const details = getValue("details");
 
-    // VALIDATION
     if (!name || !email || !pickup || !destination || !service) {
-      alert("Please fill all required fields");
+      alert("Fill all required fields");
       return;
     }
 
-    const message = `
-🚨 NEW SHIPMENT REQUEST
+    const message = `Hello, I want to request a payment slip.
 
 Name: ${name}
 Email: ${email}
@@ -95,12 +100,10 @@ Pickup: ${pickup}
 Destination: ${destination}
 Weight: ${weight || "N/A"}
 Service: ${service}
-Details: ${details || "None"}
-
-Please respond with payment instructions.
-    `;
+Details: ${details || "None"}`;
 
     const phone = "13864174481";
+
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
     window.open(url, "_blank");
@@ -144,7 +147,7 @@ if (paymentForm) {
   });
   console.log("JS LOADED ✅");
 
-  document.getElementById("whatsappBtn")?.addEventListener("click", () => {
-    alert("Button is working ✅");
-  });
+document.getElementById("whatsappBtn")?.addEventListener("click", () => {
+  alert("Button is working ✅");
+});
 }
